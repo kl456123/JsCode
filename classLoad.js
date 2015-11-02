@@ -9,12 +9,12 @@ superType.prototype.sayName = function(){
 };
 
 function subType( name , age ){
-	superType.call(this,name);
+	superType.call(this,name);//在子类实例化父类实例属性
 	this.age = age;
 	this.sayHello = function(){
 	console.log('Hello Everyone\n');
- }
-};
+ };
+}
 subType.prototype = new superType();
 subType.prototype.sayAge = function(){
 	console.log("My age is "+this.age+".");
@@ -49,6 +49,13 @@ function object(o){
 	F.prototype = o;
 	return new F();
 }
+
+/*test object()*/
+var obj = {
+	color:"black"
+};
+var anotherobj = object(obj);
+console.log(obj ===obj);
 /*寄生式继承*/
 function createAnother(original){
 	var clone = object(original);
@@ -65,3 +72,67 @@ var person = {
 var anotherPerson = createAnother(person);
 anotherPerson.sayHi();
 /*寄生组合式继承（最佳方式）*/
+// 寄生就是在别人的基础上再加工
+/*好的继承函数*/
+function inheritPrototype(subType , superType){
+	var prototype  = object(superType.prototype);
+	prototype.constructor = subType;
+	subType.prototype = prototype;
+}
+console.log(subType.constructor);//由function产生的构造函数
+/*test Function()*/
+var foo = new Function();
+console.log(foo.constructor);
+console.log(foo._proto_);
+
+
+console.log(BaseComponent.prototype);
+
+
+
+/*module mode*/
+function BaseComponent(){
+	this.color  = "black";
+}
+var application = function(){
+	// private variable and methods
+	var components = new Array();
+	// initial
+	components.push(new BaseComponent());
+	// gloable methods
+	return {
+		getComponentCount : function(){
+			return components.length;
+		},
+
+		registerComponent : function(component){
+			if(typeof component =="object"){
+			components.push(component);				
+			}
+		}
+	};
+}();
+console.log(application);
+console.log(application.getComponentCount());
+application.registerComponent({color:"blue"});
+console.log(application.getComponentCount());
+
+
+/*enrich module mode*/
+// 返回带有共有方法的对象
+// 返回带有某些公有方法的基础控件
+var app = function(){
+	var components = new Array();	
+	var app = new BaseComponent();
+	app.getComponentCount =  function(){
+		return components.length;
+	};
+
+	app.registerComponent = function(){
+		if(typeof component =="object"){
+			components.push(component);				
+			}
+	};
+	
+	return app;
+};
